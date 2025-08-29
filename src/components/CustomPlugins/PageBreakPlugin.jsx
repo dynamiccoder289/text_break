@@ -24,6 +24,11 @@ export default function PageBreakPlugin() {
         if ($isRangeSelection(selection)) {
           const pageBreakNode = $createPageBreakNode();
           $insertNodeToNearestRoot(pageBreakNode);
+          
+          // Add a paragraph after the page break for continued editing
+          const newParagraph = $createParagraphNode();
+          pageBreakNode.insertAfter(newParagraph);
+          newParagraph.selectEnd();
         }
         return true;
       },

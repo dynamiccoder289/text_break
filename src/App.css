@@ -393,6 +393,85 @@
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
   border-radius: 3px;
 }
+
+/* Page break and text flow styles */
+.page-break {
+  page-break-before: always !important;
+  break-before: page !important;
+  height: 0 !important;
+  margin: 20px 0 !important;
+  border: none !important;
+  position: relative !important;
+}
+
+.page-break::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #ccc 20%, #ccc 80%, transparent);
+}
+
+/* Enhanced text flow */
+.ContentEditable__root {
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto !important;
+}
+
+.ContentEditable__root p,
+.ContentEditable__root h1,
+.ContentEditable__root h2,
+.ContentEditable__root h3,
+.ContentEditable__root h4,
+.ContentEditable__root h5,
+.ContentEditable__root h6 {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  orphans: 2;
+  widows: 2;
+}
+
+.ContentEditable__root table {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* Prevent awkward breaks */
+.ContentEditable__root li {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.ContentEditable__root blockquote {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* Page container improvements */
+.page-container {
+  overflow: visible !important;
+}
+
+/* Print styles for better page breaks */
+@media print {
+  .page-break {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+  
+  .page-container {
+    page-break-after: always;
+    break-after: page;
+  }
+  
+  .page-container:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+}
 .PlaygroundEditorTheme__tableAddColumns {
   position: absolute;
   top: 0;

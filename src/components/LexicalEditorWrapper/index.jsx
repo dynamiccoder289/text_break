@@ -17,6 +17,9 @@ import ImagesPlugin from "../CustomPlugins/ImagePlugin";
 import FloatingTextFormatToolbarPlugin from "../CustomPlugins/FloatingTextFormatPlugin";
 import TableResizePlugin from "../CustomPlugins/TableResizePlugin";
 import TableActionMenuPlugin from "../CustomPlugins/TableActionMenuPlugin";
+import TextFlowPlugin from "./TextFlowPlugin";
+import PageBreakHandler from "./PageBreakHandler";
+import PageOverflowHandler from "./PageOverflowHandler";
 import {
 	Document,
 	Packer,
@@ -38,6 +41,19 @@ import {
 function LexicalEditorWrapper() {
   const [pages, setPages] = useState([{ id: 1 }]);
   const contentRef = useRef(null);
+  const [textPages, setTextPages] = useState([]);
+
+  // Handle page updates from text flow
+  const handlePagesChange = (newPages) => {
+    setTextPages(newPages);
+    const pageCount = Math.max(1, newPages.length);
+    const updatedPages = [];
+    for (let i = 0; i < pageCount; i++) {
+      updatedPages.push({ id: i + 1 });
+    }
+    setPages(updatedPages);
+  };
+
 // Function to handle DOCX download
 const handleDownloadDocx = async (editor) => {
 	const editorState = editor.getEditorState();
@@ -828,19 +844,7 @@ const buildParagraphFromRuns = async (runs, align, line, before, after) => {
 };
   // Update pages when content changes
   const handleChange = () => {
-    setTimeout(() => {
-      if (contentRef.current) {
-        const totalHeight = contentRef.current.scrollHeight;
-        const pageHeight = 1123; // A4 height in pixels
-        const pageCount = Math.max(1, Math.ceil(totalHeight / pageHeight));
-        
-        const newPages = [];
-        for (let i = 0; i < pageCount; i++) {
-          newPages.push({ id: i + 1 });
-        }
-        setPages(newPages);
-      }
-    }, 100);
+    // Text flow plugin will handle page updates
   };
 
   // Prevent image splitting across pages
@@ -852,6 +856,44 @@ const buildParagraphFromRuns = async (runs, align, line, before, after) => {
         break-inside: avoid;
         max-width: 100%;
         height: auto;
+      }
+      
+      /* Enhanced text flow styles */
+      .page-container {
+        overflow: hidden;
+      }
+      
+      .page-container p,
+      .page-container h1,
+      .page-container h2,
+      .page-container h3,
+      .page-container h4,
+      .page-container h5,
+      .page-container h6 {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        orphans: 2;
+        widows: 2;
+      }
+      
+      .page-container table {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      
+      .page-container .page-break {
+        page-break-before: always;
+        break-before: page;
+        height: 0;
+        margin: 0;
+        padding: 0;
+      }
+      
+      /* Ensure proper text wrapping */
+      .ContentEditable__root {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
       }
     `;
     document.head.appendChild(style);
@@ -899,12 +941,12 @@ const buildParagraphFromRuns = async (runs, align, line, before, after) => {
                 background: "white",
                 width: "794px",
                 minHeight: "1123px",
-                maxHeight: "1123px",
                 boxShadow: 3,
                 border: "1px solid #ddd",
                 mb: 4,
                 position: "relative",
-                overflow: "hidden",
+                overflow: "visible",
+                pageBreakAfter: i === pages.length - 1 ? "auto" : "always",
                 "&:after": i === pages.length - 1 ? {} : {
                   content: '""',
                   position: "absolute",
@@ -955,12 +997,26 @@ const buildParagraphFromRuns = async (runs, align, line, before, after) => {
                       minHeight: "100%",
                       outline: "none",
                       height: "auto",
+                      wordWrap: "break-word",
+                      overflowWrap: "break-word",
+                      hyphens: "auto",
                       // Prevent image splitting
                       "& img": {
                         pageBreakInside: "avoid",
                         breakInside: "avoid",
                         maxWidth: "100%",
                         height: "auto"
+                      },
+                      // Enhanced text flow
+                      "& p, & h1, & h2, & h3, & h4, & h5, & h6": {
+                        pageBreakInside: "avoid",
+                        breakInside: "avoid",
+                        orphans: 2,
+                        widows: 2
+                      },
+                      "& table": {
+                        pageBreakInside: "avoid",
+                        breakInside: "avoid"
                       }
                     }}
                   />
@@ -985,6 +1041,9 @@ const buildParagraphFromRuns = async (runs, align, line, before, after) => {
       <TablePlugin />
       <TableResizePlugin />
       <TableActionMenuPlugin />
+      <TextFlowPlugin onPagesChange={handlePagesChange} />
+      <PageBreakHandler />
+      <PageOverflowHandler />
       <MyCustomAutoFocusPlugin />
     </LexicalComposer>
   );

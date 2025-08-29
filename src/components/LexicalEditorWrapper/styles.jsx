@@ -10,6 +10,10 @@ export const MuiContentEditable = styled(ContentEditable)({
   paddingLeft: 10,
   position: "relative",
   outline: "none",
+  wordWrap: "break-word",
+  overflowWrap: "break-word",
+  hyphens: "auto",
+  lineHeight: "1.6",
 });
 
 export const placeHolderSx = {

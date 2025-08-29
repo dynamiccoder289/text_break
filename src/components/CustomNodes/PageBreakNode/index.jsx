@@ -42,6 +42,11 @@ export class PageBreakNode extends DecoratorNode {
     element.style.pageBreakBefore = "always";
     element.style.breakBefore = "page";
     element.className = "page-break";
+    element.style.height = "0";
+    element.style.margin = "0";
+    element.style.padding = "0";
+    element.style.border = "none";
+    element.style.display = "block";
     return { element };
   }
  
@@ -58,6 +63,7 @@ export class PageBreakNode extends DecoratorNode {
     return (
  
       <div
+  className="page-break"
   style={{
     display: "flex",
     alignItems: "center",
@@ -66,11 +72,27 @@ export class PageBreakNode extends DecoratorNode {
     color: "#999",
     fontSize: "14px",
     fontWeight: "500",
+    pageBreakBefore: "always",
+    breakBefore: "page",
+    height: "20px",
+    borderTop: "1px dashed #ccc",
+    position: "relative"
   }}
 >
-  <div style={{ flex: 1, borderTop: "1px dashed #ccc" }}></div>
-  <span style={{ margin: "0 10px", whiteSpace: "nowrap" }}>Page Break</span>
-  <div style={{ flex: 1, borderTop: "1px dashed #ccc" }}></div>
+  <span 
+    style={{ 
+      position: "absolute",
+      left: "50%",
+      top: "-10px",
+      transform: "translateX(-50%)",
+      backgroundColor: "white",
+      padding: "0 10px",
+      fontSize: "12px",
+      color: "#999"
+    }}
+  >
+    Page Break
+  </span>
 </div>
  
     );
